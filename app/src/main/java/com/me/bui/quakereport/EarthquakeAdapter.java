@@ -43,7 +43,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         TextView txtTime = convertView.findViewById(R.id.time);
 
         txtMagnitude.setText(formatMagnitude(earthquake.getMagnitude()));
-        String fullLocation [] =earthquake.getLocation().split("(?<=of)");
+        String fullLocation [] =earthquake.getLocation().split("(?<=of )");
         if (fullLocation.length > 1) {
             txtLocationOffset.setText(fullLocation[0]);
             txtLocation.setText(fullLocation[1]);
