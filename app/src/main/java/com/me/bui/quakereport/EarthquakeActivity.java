@@ -15,44 +15,88 @@
  */
 package com.me.bui.quakereport;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.me.bui.quakereport.data.Earthquake;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EarthquakeActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = EarthquakeActivity.class.getName();
+    public static final String TAG = EarthquakeActivity.class.getName();
+
+    private static final String USGS_REQUEST_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2018-01-01&endtime=2018-02-01";
+
+    private ArrayList<Earthquake> mEarthquakes = new ArrayList<>();
+    private EarthquakeAdapter mAdapter;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
-        // Create a fake list of earthquake locations.
-//        ArrayList<Earthquake> earthquakes = new ArrayList<>();
-//        earthquakes.add(new Earthquake("7.2", "San Francisco", "Feb 2, 2016"));
-//        earthquakes.add(new Earthquake("6.1", "London", "July 20, 2015"));
-//        earthquakes.add(new Earthquake("3.9", "Tokyo", "Nov 10, 2014"));
-//        earthquakes.add(new Earthquake("5.4", "Mexico City", "May 3, 2014"));
-//        earthquakes.add(new Earthquake("2.8", "Moscow", "Jan 31, 2013"));
-//        earthquakes.add(new Earthquake("4.9", "Rio de Janeiro", "Aug 19, 2012"));
-//        earthquakes.add(new Earthquake("1.6", "Paris", "Oct 30, 2011"));
-        ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes();
-
-        // Find a reference to the {@link ListView} in the layout
+        mProgressBar = findViewById(R.id.loading);
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
+        mAdapter = new EarthquakeAdapter(this, mEarthquakes);
+        earthquakeListView.setAdapter(mAdapter);
 
-        // Create a new {@link ArrayAdapter} of earthquakes
-        EarthquakeAdapter adapter = new EarthquakeAdapter(
-                this, earthquakes);
+        EarthAnsynTask task = new EarthAnsynTask();
+        task.execute(creatURL(USGS_REQUEST_URL));
+    }
 
-        // Set the adapter on the {@link ListView}
-        // so the list can be populated in the user interface
-        earthquakeListView.setAdapter(adapter);
+    private URL creatURL (String strUrl) {
+        URL url = null;
+        try {
+            url = new URL(strUrl);
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Error create url ...");
+            return null;
+        }
+        return url;
+    }
+
+    private void updateUi (ArrayList<Earthquake> earthquakes) {
+        mProgressBar.setVisibility(View.INVISIBLE);
+        mEarthquakes.addAll(earthquakes);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private class EarthAnsynTask extends AsyncTask<URL, Void, ArrayList<Earthquake>> {
+
+        @Override
+        protected ArrayList<Earthquake> doInBackground(URL... urls) {
+            URL url = urls[0];
+
+            String jsonResponse = "";
+            try {
+                jsonResponse = QueryUtils.makeHttpRequest(url, "GET");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return QueryUtils.extractEarthquakes(jsonResponse);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Earthquake> earthquake) {
+            if (earthquake == null){
+                Log.e(TAG, "onPostExecute -------------------------------- earthquake is NULL");
+                return;
+            }
+            updateUi(earthquake);
+        }
     }
 }

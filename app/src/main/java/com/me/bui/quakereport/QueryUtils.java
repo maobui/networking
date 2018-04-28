@@ -8,9 +8,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by mao.bui on 4/28/2018.
@@ -43,7 +52,7 @@ public class QueryUtils {
      * Return a list of {@link Earthquake} objects that has been built up from
      * parsing a JSON response.
      */
-    public static ArrayList<Earthquake> extractEarthquakes() {
+    public static ArrayList<Earthquake> extractEarthquakes(String json) {
 
         // Create an empty ArrayList that we can start adding earthquakes to
         ArrayList<Earthquake> earthquakes = new ArrayList<>();
@@ -54,7 +63,7 @@ public class QueryUtils {
         try {
             // TODO: Parse the response given by the SAMPLE_JSON_RESPONSE string and
             // build up a list of Earthquake objects with the corresponding data.
-            JSONObject baseJson = new JSONObject(SAMPLE_JSON_RESPONSE);
+            JSONObject baseJson = new JSONObject(json);
             JSONArray features = baseJson.getJSONArray("features");
             for (int i =  0; i < features.length(); i ++) {
                 JSONObject currJsonObject = features.getJSONObject(i);
@@ -76,5 +85,50 @@ public class QueryUtils {
 
         // Return the list of earthquakes
         return earthquakes;
+    }
+
+    public static String makeHttpRequest(URL url, String method) throws IOException {
+        String jsonResponse = "";
+        HttpsURLConnection urlConnection = null;
+        InputStream inputStream = null;
+        if (url == null){
+            return jsonResponse;
+        }
+        try {
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestMethod(method);
+            urlConnection.setReadTimeout(10000);
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                inputStream = urlConnection.getInputStream();
+                jsonResponse = readFromStream(inputStream);
+            }
+        }catch (IOException e) {
+            Log.e(TAG, "Problem with makeHttpRequest " + e.getMessage());
+        } finally {
+            if( urlConnection != null){
+                urlConnection.disconnect();
+            }
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            
+        }
+        return jsonResponse;
+    }
+
+    private static String readFromStream(InputStream inputStream) throws IOException {
+        StringBuilder output = new StringBuilder();
+        if (inputStream != null) {
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+            String line = reader.readLine();
+            while (line != null){
+                output.append(line);
+                line = reader.readLine();
+            }
+        }
+        return output.toString();
     }
 }
