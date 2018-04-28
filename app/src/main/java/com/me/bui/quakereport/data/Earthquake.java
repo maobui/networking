@@ -5,17 +5,17 @@ package com.me.bui.quakereport.data;
  */
 public class Earthquake {
 
-    private String mMagnitude;
+    private double mMagnitude;
     private String mLocation;
-    private Long mTimeInMilliseconds;
+    private long mTimeInMilliseconds;
 
-    public Earthquake(String magnitude, String location, Long timeInMilliseconds) {
+    public Earthquake(Double magnitude, String location, long timeInMilliseconds) {
         mMagnitude = magnitude;
         mLocation = location;
         mTimeInMilliseconds = timeInMilliseconds;
     }
 
-    public String getMagnitude() {
+    public double getMagnitude() {
         return mMagnitude;
     }
 
@@ -23,7 +23,7 @@ public class Earthquake {
         return mLocation;
     }
 
-    public Long getTimeInMilliseconds() {
+    public long getTimeInMilliseconds() {
         return mTimeInMilliseconds;
     }
 }
