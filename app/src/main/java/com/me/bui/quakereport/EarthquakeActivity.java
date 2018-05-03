@@ -54,18 +54,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         earthquakeListView.setAdapter(mAdapter);
 
         EarthAnsynTask task = new EarthAnsynTask();
-        task.execute(creatURL(USGS_REQUEST_URL));
-    }
-
-    private URL creatURL (String strUrl) {
-        URL url = null;
-        try {
-            url = new URL(strUrl);
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "Error create url ...");
-            return null;
-        }
-        return url;
+        task.execute(USGS_REQUEST_URL);
     }
 
     private void updateUi (ArrayList<Earthquake> earthquakes) {
@@ -74,20 +63,11 @@ public class EarthquakeActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private class EarthAnsynTask extends AsyncTask<URL, Void, ArrayList<Earthquake>> {
+    private class EarthAnsynTask extends AsyncTask<String , Void, ArrayList<Earthquake>> {
 
         @Override
-        protected ArrayList<Earthquake> doInBackground(URL... urls) {
-            URL url = urls[0];
-
-            String jsonResponse = "";
-            try {
-                jsonResponse = QueryUtils.makeHttpRequest(url, "GET");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return QueryUtils.extractEarthquakes(jsonResponse);
+        protected ArrayList<Earthquake> doInBackground(String... urls) {
+            return Utils.fetchEarthquakeData(urls[0]);
         }
 
         @Override
