@@ -15,11 +15,14 @@
  */
 package com.me.bui.quakereport;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -37,7 +40,7 @@ public class EarthquakeActivity extends AppCompatActivity {
     public static final String TAG = EarthquakeActivity.class.getName();
 
     private static final String USGS_REQUEST_URL =
-            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2018-01-01&endtime=2018-02-01";
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2018-01-01&endtime=2018-01-05";
 
     private ArrayList<Earthquake> mEarthquakes = new ArrayList<>();
     private EarthquakeAdapter mAdapter;
@@ -52,6 +55,20 @@ public class EarthquakeActivity extends AppCompatActivity {
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
         mAdapter = new EarthquakeAdapter(this, mEarthquakes);
         earthquakeListView.setAdapter(mAdapter);
+        earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(EarthquakeActivity.this, EarthDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putDouble("mag",mEarthquakes.get(i).getMagnitude());
+                bundle.putInt("felt",mEarthquakes.get(i).getFelt());
+                bundle.putDouble("cdi",mEarthquakes.get(i).getCdi());
+                bundle.putInt("tsunami",mEarthquakes.get(i).getTsunami());
+                bundle.putString("title",mEarthquakes.get(i).getTitle());
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
 
         EarthAnsynTask task = new EarthAnsynTask();
         task.execute(USGS_REQUEST_URL);
@@ -67,6 +84,9 @@ public class EarthquakeActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<Earthquake> doInBackground(String... urls) {
+            if (urls.length < 1 || urls[0] == null) {
+                return null;
+            }
             return Utils.fetchEarthquakeData(urls[0]);
         }
 

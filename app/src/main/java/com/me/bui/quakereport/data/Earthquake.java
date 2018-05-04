@@ -8,11 +8,19 @@ public class Earthquake {
     private double mMagnitude;
     private String mLocation;
     private long mTimeInMilliseconds;
+    private int mFelt;
+    private double mCdi;
+    private int mTsunami;
+    private String mTitle;
 
-    public Earthquake(Double magnitude, String location, long timeInMilliseconds) {
+    public Earthquake(double magnitude, String location, long timeInMilliseconds, int felt, double cdi, int tsunami, String title) {
         mMagnitude = magnitude;
         mLocation = location;
         mTimeInMilliseconds = timeInMilliseconds;
+        mFelt = felt;
+        mCdi = cdi;
+        mTsunami = tsunami;
+        mTitle = title;
     }
 
     public double getMagnitude() {
@@ -25,5 +33,21 @@ public class Earthquake {
 
     public long getTimeInMilliseconds() {
         return mTimeInMilliseconds;
+    }
+
+    public int getFelt() {
+        return mFelt;
+    }
+
+    public double getCdi() {
+        return mCdi;
+    }
+
+    public int getTsunami() {
+        return mTsunami;
+    }
+
+    public String getTitle() {
+        return mTitle;
     }
 }
