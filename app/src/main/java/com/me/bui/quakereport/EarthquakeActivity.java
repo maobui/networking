@@ -95,8 +95,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         mAdapter.clear();
         mTxtEmptyState.setText(R.string.no_earthquakes);
         mProgressBar.setVisibility(View.GONE);
-        mEarthquakes.addAll(earthquakes);
-        mAdapter.notifyDataSetChanged();
+        mAdapter.setEarthquakes(earthquakes);
     }
 
     @Override

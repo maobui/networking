@@ -15,6 +15,7 @@ import com.me.bui.quakereport.data.Earthquake;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,8 +24,11 @@ import java.util.List;
  */
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
+    private List<Earthquake> mEarthquakes = new ArrayList<>();
+
     public EarthquakeAdapter(@NonNull Context context, List<Earthquake> earthquakeList) {
         super(context, 0, earthquakeList);
+        mEarthquakes.addAll(earthquakeList);
     }
 
     @NonNull
@@ -66,5 +70,25 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         return convertView;
     }
 
+    @Nullable
+    @Override
+    public Earthquake getItem(int position) {
+        return mEarthquakes.get(position);
+    }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getCount() {
+        return mEarthquakes.size();
+    }
+
+    public void setEarthquakes(List<Earthquake> earthquakes) {
+        mEarthquakes.clear();
+        mEarthquakes.addAll(earthquakes);
+        notifyDataSetChanged();
+    }
 }
