@@ -23,3 +23,7 @@ https://classroom.udacity.com/courses/ud843
 	Rotate phone multiple times ===> Got a ton of extra AsyncTask.
 
 ![](/images/asynctask5.png)
+
+### Loaders
+
+
