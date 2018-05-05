@@ -18,3 +18,8 @@ https://classroom.udacity.com/courses/ud843
 ![](/images/asynctask3.png)
 
 ![](/images/asynctask4.png)
+
+#### Limitations of AsyncTask
+	Rotate phone multiple times ===> Got a ton of extra AsyncTask.
+
+![](/images/asynctask5.png)

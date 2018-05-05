@@ -111,6 +111,8 @@ public class Utils {
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
+            } else {
+                Log.e(TAG, "Error response code: " + urlConnection.getResponseCode());
             }
         }catch (IOException e) {
             Log.e(TAG, "Problem with makeHttpRequest " + e.getMessage());
@@ -158,7 +160,7 @@ public class Utils {
         try {
             jsonResponse = makeHttpRequest(url, "GET");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Problem making the HTTP request.", e);
         }
 
         return extractEarthquakes(jsonResponse);

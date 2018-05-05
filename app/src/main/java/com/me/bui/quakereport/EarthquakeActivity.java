@@ -40,7 +40,7 @@ public class EarthquakeActivity extends AppCompatActivity {
     public static final String TAG = EarthquakeActivity.class.getName();
 
     private static final String USGS_REQUEST_URL =
-            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2018-01-01&endtime=2018-01-05";
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&limit=10";
 
     private ArrayList<Earthquake> mEarthquakes = new ArrayList<>();
     private EarthquakeAdapter mAdapter;
@@ -57,14 +57,14 @@ public class EarthquakeActivity extends AppCompatActivity {
         earthquakeListView.setAdapter(mAdapter);
         earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Intent intent = new Intent(EarthquakeActivity.this, EarthDetailActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putDouble("mag",mEarthquakes.get(i).getMagnitude());
-                bundle.putInt("felt",mEarthquakes.get(i).getFelt());
-                bundle.putDouble("cdi",mEarthquakes.get(i).getCdi());
-                bundle.putInt("tsunami",mEarthquakes.get(i).getTsunami());
-                bundle.putString("title",mEarthquakes.get(i).getTitle());
+                bundle.putDouble("mag",mAdapter.getItem(position).getMagnitude());
+                bundle.putInt("felt",mAdapter.getItem(position).getFelt());
+                bundle.putDouble("cdi",mAdapter.getItem(position).getCdi());
+                bundle.putInt("tsunami",mAdapter.getItem(position).getTsunami());
+                bundle.putString("title",mAdapter.getItem(position).getTitle());
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
@@ -75,6 +75,7 @@ public class EarthquakeActivity extends AppCompatActivity {
     }
 
     private void updateUi (ArrayList<Earthquake> earthquakes) {
+        mAdapter.clear();
         mProgressBar.setVisibility(View.INVISIBLE);
         mEarthquakes.addAll(earthquakes);
         mAdapter.notifyDataSetChanged();
