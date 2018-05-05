@@ -20,10 +20,10 @@ https://classroom.udacity.com/courses/ud843
 ![](/images/asynctask4.png)
 
 #### Limitations of AsyncTask
-	Rotate phone multiple times ===> Got a ton of extra AsyncTask.
+	Rotate phone multiple times ===> Got a ton of extra AsyncTask ===> USE LOADERS INSTEAD OF ASYNCTASK !!!
 
 ![](/images/asynctask5.png)
 
 ### Loaders
 
-
+![](/images/loaders.png)

@@ -15,7 +15,12 @@
  */
 package com.me.bui.quakereport;
 
+import android.app.LoaderManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -26,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.me.bui.quakereport.data.Earthquake;
 
@@ -35,7 +41,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Earthquake>>{
 
     public static final String TAG = EarthquakeActivity.class.getName();
 
@@ -45,6 +51,9 @@ public class EarthquakeActivity extends AppCompatActivity {
     private ArrayList<Earthquake> mEarthquakes = new ArrayList<>();
     private EarthquakeAdapter mAdapter;
     private ProgressBar mProgressBar;
+    private TextView mTxtEmptyState;
+
+    private static final int EARTHQUAKE_LOADER_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,35 +78,42 @@ public class EarthquakeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        mTxtEmptyState = findViewById(R.id.empty_view);
+        earthquakeListView.setEmptyView(mTxtEmptyState);
 
-        EarthAnsynTask task = new EarthAnsynTask();
-        task.execute(USGS_REQUEST_URL);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo  = connMgr.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnected()) {
+            getLoaderManager().initLoader(EARTHQUAKE_LOADER_ID, null, this);
+        } else {
+            mTxtEmptyState.setText(R.string.no_internet_connection);
+            mProgressBar.setVisibility(View.GONE);
+        }
     }
 
-    private void updateUi (ArrayList<Earthquake> earthquakes) {
+    private void updateUi (List<Earthquake> earthquakes) {
         mAdapter.clear();
-        mProgressBar.setVisibility(View.INVISIBLE);
+        mTxtEmptyState.setText(R.string.no_earthquakes);
+        mProgressBar.setVisibility(View.GONE);
         mEarthquakes.addAll(earthquakes);
         mAdapter.notifyDataSetChanged();
     }
 
-    private class EarthAnsynTask extends AsyncTask<String , Void, ArrayList<Earthquake>> {
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int i, Bundle bundle) {
+        Log.i(TAG, "onCreateLoader ... called.");
+        return new EarthquakeLoader(this,USGS_REQUEST_URL);
+    }
 
-        @Override
-        protected ArrayList<Earthquake> doInBackground(String... urls) {
-            if (urls.length < 1 || urls[0] == null) {
-                return null;
-            }
-            return Utils.fetchEarthquakeData(urls[0]);
-        }
+    @Override
+    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        Log.i(TAG, "onLoadFinished ... called.");
+        updateUi(earthquakes);
+    }
 
-        @Override
-        protected void onPostExecute(ArrayList<Earthquake> earthquake) {
-            if (earthquake == null){
-                Log.e(TAG, "onPostExecute -------------------------------- earthquake is NULL");
-                return;
-            }
-            updateUi(earthquake);
-        }
+    @Override
+    public void onLoaderReset(Loader<List<Earthquake>> loader) {
+        Log.i(TAG, "onLoaderReset ... called.");
+        mAdapter.clear();
     }
 }
